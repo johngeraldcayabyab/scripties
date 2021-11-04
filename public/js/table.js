@@ -85,10 +85,44 @@ class Table {
         this.url = url;
     }
 
+    setUrlParam(param, value) {
+        let isValueSet = value.trim().length;
+
+        if (this.isUrlParamExist(param)) {
+            if (isValueSet) {
+                this.updateUrlParam(param, value);
+            } else {
+                console.log('delete bitch!');
+                this.deleteUrlParam(param);
+            }
+        } else {
+            if (isValueSet) {
+                this.addUrlParam(param, value);
+            }
+        }
+    }
+
+    isUrlParamExist(param) {
+        let url = new URL(this.url);
+        return !!url.searchParams.get(param);
+    }
+
     updateUrlParam(param, value) {
-        let href = new URL(this.url);
-        href.searchParams.set(param, value);
-        this.url = href.toString();
+        let url = new URL(this.url);
+        url.searchParams.set(param, value);
+        this.url = url.toString();
+    }
+
+    addUrlParam(param, value) {
+        let url = new URL(this.url);
+        url.searchParams.append(param, value);
+        this.url = url.toString();
+    }
+
+    deleteUrlParam(param) {
+        let url = new URL(this.url);
+        url.searchParams.delete(param);
+        this.url = url.toString();
     }
 
     /**
@@ -215,7 +249,7 @@ class Table {
 
     createSelectFilter(column) {
         let select = document.createElement('select');
-        select.classList.add(...['form-select', 'form-select-sm']);
+        select.classList.add(...['form-select', 'form-select-sm', 'filter-fields']);
         select.setAttribute('name', column.field);
         let selectOptions = [];
         column.filter.options.forEach((option) => {
@@ -233,7 +267,7 @@ class Table {
 
     createTextFilter(column) {
         let input = document.createElement('input');
-        input.classList.add(...['form-control', 'form-control-sm']);
+        input.classList.add(...['form-control', 'form-control-sm', 'filter-fields']);
         input.setAttribute('name', column.field);
         input.setAttribute('type', 'text');
         input.setAttribute('autocomplete', 'off');
@@ -246,7 +280,7 @@ class Table {
 
     createNumberFilter(column) {
         let input = document.createElement('input');
-        input.classList.add(...['form-control', 'form-control-sm']);
+        input.classList.add(...['form-control', 'form-control-sm', 'filter-fields']);
         input.setAttribute('name', column.field);
         input.setAttribute('type', 'number');
         input.setAttribute('autocomplete', 'off');
@@ -279,6 +313,19 @@ class Table {
         path.setAttribute('d', 'M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z');
         buttonSvg.append(path);
         searchButton.append(buttonSvg);
+
+        searchButton.addEventListener('click', (e) => {
+            let filterFields = document.querySelectorAll('.filter-fields');
+            let fields = [];
+            filterFields.forEach((field) => {
+                fields.push({name: field.getAttribute('name'), value: field.value});
+            });
+            fields.forEach((field) => {
+                this.setUrlParam(field.name, field.value);
+            });
+            this.fetchThenRenderData();
+        });
+
         buttonGroup.append(resetButton);
         buttonGroup.append(searchButton);
         return buttonGroup;
