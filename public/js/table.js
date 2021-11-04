@@ -6,6 +6,7 @@ class Table {
         this.columns = config.columns;
         this.pagination = config.pagination;
         this.filter = config.filter;
+        this.columnAlignment = config.columnAlignment ? config.columnAlignment : 'text-end'
 
         this.createTable();
         this.fetchThenRenderData();
@@ -19,10 +20,15 @@ class Table {
             let rows = [];
             response.data.forEach((data) => {
                 let tr = document.createElement('tr');
-                tr.classList.add(...['text-end', 'table-row']);
+                tr.classList.add(...[this.columnAlignment, 'table-row']);
                 this.columns.forEach((column) => {
                     let td = document.createElement('td');
-                    td.append(data[column.field]);
+                    if (!column.render) {
+                        td.append(data[column.field]);
+                    } else {
+                        let self = this;
+                        td.append(column.render(data.id, self));
+                    }
                     tr.append(td);
                 });
                 rows.push(tr);
@@ -57,7 +63,7 @@ class Table {
         let rows = [];
         this.columns.forEach((column) => {
             let row = document.createElement('th');
-            row.classList.add('text-end');
+            row.classList.add(this.columnAlignment);
             row.setAttribute('scope', 'col');
             row.append(column.label);
             rows.push(row);
