@@ -211,7 +211,7 @@ class Table {
 
         let searchAndResetButtonContainer = document.createElement('div');
         searchAndResetButtonContainer.classList.add(...['col-2', 'offset-10', 'text-end', 'mb-3']);
-        searchAndResetButtonContainer.append(this.createSearchAndResetButton());
+        searchAndResetButtonContainer.append(this.createFilterAndResetButton());
         let filters = this.columns.map((column) => {
             if (column.filter) {
                 if (column.filter.type === 'select') {
@@ -248,16 +248,17 @@ class Table {
             if (field.tagName === 'INPUT') {
                 field.addEventListener('keyup', (e) => {
                     if (e.key === 'Enter') {
-                        this.getFiltersFetchThenRenderData();
+                        this.getFieldValuesThenFetchData();
                     }
                 });
             } else if (field.tagName === 'SELECT') {
                 field.addEventListener('change', (e) => {
-                    this.getFiltersFetchThenRenderData();
+                    this.getFieldValuesThenFetchData();
                 });
             }
         });
-        this.toggleFilters();
+        this.toggleFilterFieldsRow();
+        this.resetFilters();
     }
 
     createSelectFilter(column) {
@@ -304,12 +305,12 @@ class Table {
         return input;
     }
 
-    createSearchAndResetButton() {
+    createFilterAndResetButton() {
         let buttonGroup = document.createElement('div');
         buttonGroup.classList.add('btn-group');
         buttonGroup.setAttribute('role', 'group');
         let resetButton = document.createElement('input');
-        resetButton.classList.add(...['btn', 'btn-sm', 'btn-outline-secondary']);
+        resetButton.classList.add(...['btn', 'btn-sm', 'btn-outline-secondary', 'filter-reset']);
         resetButton.setAttribute('type', 'reset');
         resetButton.setAttribute('value', 'Reset');
         let searchButton = document.createElement('button');
@@ -331,40 +332,23 @@ class Table {
         return buttonGroup;
     }
 
-    toggleFilters() {
+    toggleFilterFieldsRow() {
         let filterButton = document.querySelector('.filter-button');
         filterButton.addEventListener('click', (e) => {
             let filterRow = document.querySelector('.filter-row');
             if (filterRow.classList.contains('d-none')) {
                 filterRow.classList.remove('d-none');
             } else {
-                let filterFields = document.querySelectorAll('.filter-fields');
-                let fields = [];
-                filterFields.forEach((field) => {
-                    fields.push({name: field.getAttribute('name'), value: field.value});
-                });
-                if (!this.isFiltersHasValues(fields)) {
+                let fieldValues = this.getFieldValues();
+                if (!this.isFilterFieldsHasValues(fieldValues)) {
                     filterRow.classList.add('d-none');
-                } else {
-                    this.getFiltersFetchThenRenderData();
                 }
             }
+            this.getFieldValuesThenFetchData();
         });
     }
 
-    getFiltersFetchThenRenderData() {
-        let filterFields = document.querySelectorAll('.filter-fields');
-        let fields = [];
-        filterFields.forEach((field) => {
-            fields.push({name: field.getAttribute('name'), value: field.value});
-        });
-        fields.forEach((field) => {
-            this.setUrlParam(field.name, field.value);
-        });
-        this.fetchThenRenderData();
-    }
-
-    isFiltersHasValues(fields) {
+    isFilterFieldsHasValues(fields) {
         let hasValues = false;
         fields.forEach((field) => {
             if (field.value.trim().length) {
@@ -372,5 +356,37 @@ class Table {
             }
         });
         return hasValues;
+    }
+
+    getFieldValuesThenFetchData() {
+        let fieldValues = this.getFieldValues();
+        fieldValues.forEach((field) => {
+            this.setUrlParam(field.name, field.value);
+        });
+        this.fetchThenRenderData();
+    }
+
+    getFieldValues() {
+        let filterFields = this.getFilterFields();
+        let fieldValues = [];
+        filterFields.forEach((field) => {
+            fieldValues.push({name: field.getAttribute('name'), value: field.value});
+        });
+        return fieldValues;
+    }
+
+    resetFilters() {
+        let filterReset = document.querySelector('.filter-reset');
+        filterReset.addEventListener('click', (e) => {
+            let filterFields = this.getFilterFields();
+            filterFields.forEach((filterField) => {
+                filterField.value = '';
+            });
+            this.getFieldValuesThenFetchData();
+        });
+    }
+
+    getFilterFields() {
+        return document.querySelectorAll('.filter-fields');
     }
 }
