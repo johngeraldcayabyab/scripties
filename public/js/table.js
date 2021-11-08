@@ -87,12 +87,10 @@ class Table {
 
     setUrlParam(param, value) {
         let isValueSet = value.trim().length;
-
         if (this.isUrlParamExist(param)) {
             if (isValueSet) {
                 this.updateUrlParam(param, value);
             } else {
-                console.log('delete bitch!');
                 this.deleteUrlParam(param);
             }
         } else {
@@ -233,7 +231,7 @@ class Table {
         table.insertAdjacentElement('beforebegin', searchAndResetButtonContainer);
 
         let row = document.createElement('tr');
-        row.classList.add('bg-light');
+        row.classList.add(...['bg-light', 'filter-row', 'd-none']);
 
         filters = filters.map((filter) => {
             let th = document.createElement('th');
@@ -241,10 +239,25 @@ class Table {
             return th;
         });
 
-
         row.append(...filters);
         let tHead = document.querySelector(`${this.table} thead`);
         tHead.append(row);
+
+        let filterFields = document.querySelectorAll('.filter-fields');
+        filterFields.forEach(field => {
+            if (field.tagName === 'INPUT') {
+                field.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        this.getFiltersFetchThenRenderData();
+                    }
+                });
+            } else if (field.tagName === 'SELECT') {
+                field.addEventListener('change', (e) => {
+                    this.getFiltersFetchThenRenderData();
+                });
+            }
+        });
+        this.toggleFilters();
     }
 
     createSelectFilter(column) {
@@ -300,7 +313,7 @@ class Table {
         resetButton.setAttribute('type', 'reset');
         resetButton.setAttribute('value', 'Reset');
         let searchButton = document.createElement('button');
-        searchButton.classList.add(...['btn', 'btn-sm', 'btn-outline-primary']);
+        searchButton.classList.add(...['btn', 'btn-sm', 'btn-outline-primary', 'filter-button']);
         searchButton.setAttribute('type', 'button');
         let buttonSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         buttonSvg.classList.add(...['bi', 'bi-search']);
@@ -313,21 +326,51 @@ class Table {
         path.setAttribute('d', 'M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z');
         buttonSvg.append(path);
         searchButton.append(buttonSvg);
-
-        searchButton.addEventListener('click', (e) => {
-            let filterFields = document.querySelectorAll('.filter-fields');
-            let fields = [];
-            filterFields.forEach((field) => {
-                fields.push({name: field.getAttribute('name'), value: field.value});
-            });
-            fields.forEach((field) => {
-                this.setUrlParam(field.name, field.value);
-            });
-            this.fetchThenRenderData();
-        });
-
         buttonGroup.append(resetButton);
         buttonGroup.append(searchButton);
         return buttonGroup;
+    }
+
+    toggleFilters() {
+        let filterButton = document.querySelector('.filter-button');
+        filterButton.addEventListener('click', (e) => {
+            let filterRow = document.querySelector('.filter-row');
+            if (filterRow.classList.contains('d-none')) {
+                filterRow.classList.remove('d-none');
+            } else {
+                let filterFields = document.querySelectorAll('.filter-fields');
+                let fields = [];
+                filterFields.forEach((field) => {
+                    fields.push({name: field.getAttribute('name'), value: field.value});
+                });
+                if (!this.isFiltersHasValues(fields)) {
+                    filterRow.classList.add('d-none');
+                } else {
+                    this.getFiltersFetchThenRenderData();
+                }
+            }
+        });
+    }
+
+    getFiltersFetchThenRenderData() {
+        let filterFields = document.querySelectorAll('.filter-fields');
+        let fields = [];
+        filterFields.forEach((field) => {
+            fields.push({name: field.getAttribute('name'), value: field.value});
+        });
+        fields.forEach((field) => {
+            this.setUrlParam(field.name, field.value);
+        });
+        this.fetchThenRenderData();
+    }
+
+    isFiltersHasValues(fields) {
+        let hasValues = false;
+        fields.forEach((field) => {
+            if (field.value.trim().length) {
+                hasValues = true;
+            }
+        });
+        return hasValues;
     }
 }
