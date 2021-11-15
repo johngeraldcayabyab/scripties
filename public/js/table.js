@@ -6,7 +6,8 @@ class Table {
         this.columns = config.columns;
         this.pagination = config.pagination;
         this.filter = config.filter;
-        this.columnAlignment = config.columnAlignment ? config.columnAlignment : 'text-end'
+        this.columnAlignment = config.columnAlignment ? config.columnAlignment : 'text-end';
+        this.row = config.row;
 
         this.createTable();
         this.fetchThenRenderData();
@@ -19,19 +20,8 @@ class Table {
 
             let rows = [];
             response.data.forEach((data) => {
-                let tr = document.createElement('tr');
-                tr.classList.add(...[this.columnAlignment, 'table-row']);
-                this.columns.forEach((column) => {
-                    let td = document.createElement('td');
-                    if (!column.render) {
-                        td.append(data[column.field]);
-                    } else {
-                        let self = this;
-                        td.append(column.render(data.id, self));
-                    }
-                    tr.append(td);
-                });
-                rows.push(tr);
+                let row = this.createRow(data);
+                rows.push(row);
             });
             let tBody = document.querySelector(`${this.table} tbody`);
             tBody.innerHTML = '';
@@ -45,6 +35,30 @@ class Table {
             }
             this.instantiated = true;
         });
+    }
+
+    createRow(data) {
+        let row = document.createElement('tr');
+        row.classList.add(...[this.columnAlignment, 'table-row']);
+        this.columns.forEach((column) => {
+            let td = document.createElement('td');
+
+            /**
+             * Dictates the rendered child
+             */
+            if (!column.render) {
+                td.append(data[column.field]);
+            } else {
+                let self = this;
+                td.append(column.render(data, self));
+            }
+
+            row.append(td);
+        });
+        if (this.row) {
+            row = this.row(data, row);
+        }
+        return row;
     }
 
     createTable() {
@@ -316,16 +330,7 @@ class Table {
         let searchButton = document.createElement('button');
         searchButton.classList.add(...['btn', 'btn-sm', 'btn-outline-primary', 'filter-button']);
         searchButton.setAttribute('type', 'button');
-        let buttonSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        buttonSvg.classList.add(...['bi', 'bi-search']);
-        buttonSvg.setAttribute('width', '20px');
-        buttonSvg.setAttribute('height', '20px');
-        buttonSvg.setAttribute('fill', 'currentColor');
-        buttonSvg.setAttribute('viewBox', '0 0 16 16');
-        buttonSvg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-        let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z');
-        buttonSvg.append(path);
+        let buttonSvg = createSVG(['bi', 'bi-search']);
         searchButton.append(buttonSvg);
         buttonGroup.append(resetButton);
         buttonGroup.append(searchButton);
@@ -389,4 +394,26 @@ class Table {
     getFilterFields() {
         return document.querySelectorAll('.filter-fields');
     }
+}
+
+function createSVG(classList) {
+    let d;
+    if (classList[1] === 'bi-search') {
+        d = 'M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z';
+    } else if (classList[1] === 'bi-chevron-up') {
+        d = 'M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708l6-6z';
+    } else if (classList[1] === 'bi-chevron-down') {
+        d = 'M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z';
+    }
+    let buttonSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    buttonSvg.classList.add(...classList);
+    buttonSvg.setAttribute('width', '20px');
+    buttonSvg.setAttribute('height', '20px');
+    buttonSvg.setAttribute('fill', 'currentColor');
+    buttonSvg.setAttribute('viewBox', '0 0 16 16');
+    buttonSvg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+    let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    buttonSvg.append(path);
+    return buttonSvg;
 }
