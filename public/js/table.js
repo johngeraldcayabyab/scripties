@@ -173,7 +173,6 @@ class Table {
     }
 
     createLinks() {
-        let links = [];
         let paginationInput = document.createElement('input');
         paginationInput.classList.add(...['form-control', 'form-control-sm']);
         paginationInput.setAttribute('type', 'number');
@@ -181,7 +180,7 @@ class Table {
         paginationInput.setAttribute('maxlength', '4');
         paginationInput.setAttribute('min', this.meta.from);
         paginationInput.setAttribute('max', this.meta.last_page);
-        this.meta.links.map((link) => {
+        const links = this.meta.links.map((link) => {
             let list = document.createElement('li');
             list.classList.add('page-item');
 
@@ -208,7 +207,7 @@ class Table {
             });
 
             list.append(anchor);
-            links.push(list);
+            return list;
         });
 
         paginationInput.addEventListener('keypress', (e) => {
