@@ -8,9 +8,32 @@ class Table {
         this.filter = config.filter;
         this.columnAlignment = config.columnAlignment ? config.columnAlignment : 'text-end';
         this.row = config.row;
-
+        this.getAndSetMultipleParamsFromUrlString(config.url);
         this.createTable();
         this.fetchThenRenderData();
+    }
+
+    getAndSetMultipleParamsFromUrlString(url) {
+        if (this.hasQueryParams(url)) {
+            const params = this.getTheQueryParams(url);
+            this.setMultipleParams(params);
+        }
+    }
+
+    hasQueryParams(url) {
+        return url.includes('?');
+    }
+
+    getTheQueryParams(url) {
+        return Object.fromEntries(new URL(url).searchParams.entries());
+    }
+
+    setMultipleParams(params) {
+        for (let key in params) {
+            if (params.hasOwnProperty(key)) {
+                this.setUrlParam(key, params[key]);
+            }
+        }
     }
 
     fetchThenRenderData() {
@@ -180,8 +203,8 @@ class Table {
                 e.preventDefault();
                 e.stopImmediatePropagation();
                 e.stopPropagation();
-                this.setUrl(e.target.getAttribute('href'));
-                this.fetchThenRenderData();
+                this.getAndSetMultipleParamsFromUrlString(e.target.getAttribute('href'));
+                this.getFieldValuesThenFetchData();
             });
 
             list.append(anchor);
