@@ -284,17 +284,24 @@ class Table {
             if (field.tagName === 'INPUT') {
                 field.addEventListener('keyup', (e) => {
                     if (e.key === 'Enter') {
+                        this.resetPaginationOnSearch();
                         this.getFieldValuesThenFetchData();
                     }
                 });
             } else if (field.tagName === 'SELECT') {
                 field.addEventListener('change', (e) => {
+                    this.resetPaginationOnSearch();
                     this.getFieldValuesThenFetchData();
                 });
             }
         });
         this.toggleFilterFieldsRow();
         this.resetFilters();
+    }
+
+    resetPaginationOnSearch() {
+        this.updateUrlParam('page', 1);
+        // this.setUrlParam('page', 1);
     }
 
     createSelectFilter(column) {
@@ -368,6 +375,7 @@ class Table {
             } else {
                 let fieldValues = this.getFieldValues();
                 if (!this.isFilterFieldsHasValues(fieldValues)) {
+                    this.resetPaginationOnSearch();
                     filterRow.classList.add('d-none');
                 }
             }
@@ -409,6 +417,7 @@ class Table {
             filterFields.forEach((filterField) => {
                 filterField.value = '';
             });
+            this.resetPaginationOnSearch();
             this.getFieldValuesThenFetchData();
         });
     }
