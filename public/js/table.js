@@ -180,52 +180,94 @@ class Table {
         paginationInput.setAttribute('maxlength', '4');
         paginationInput.setAttribute('min', this.meta.from);
         paginationInput.setAttribute('max', this.meta.last_page);
-        const links = this.meta.links.map((link) => {
-            let list = document.createElement('li');
-            list.classList.add('page-item');
 
-            let anchor = document.createElement('a');
-            anchor.classList.add('page-link');
-            anchor.innerHTML = link.label;
-            anchor.setAttribute('href', link.url);
+        let links = this.createBackwardCompatibleLinks();
 
-            if (link.active) {
-                list.classList.add('active');
-            }
+        if (links.length > 0) {
+            links = links.map((link) => {
+                let list = document.createElement('li');
+                list.classList.add('page-item');
 
-            if (!link.url) {
-                list.classList.add('disabled');
-                anchor.setAttribute('href', '#');
-            }
+                let anchor = document.createElement('a');
+                anchor.classList.add('page-link');
+                anchor.innerHTML = link.label;
+                anchor.setAttribute('href', link.url);
 
-            anchor.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                e.stopPropagation();
-                this.getAndSetMultipleParamsFromUrlString(e.target.getAttribute('href'));
-                this.getFieldValuesThenFetchData();
+                if (link.active) {
+                    list.classList.add('active');
+                }
+
+                if (!link.url) {
+                    list.classList.add('disabled');
+                    anchor.setAttribute('href', '#');
+                }
+
+                anchor.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    e.stopPropagation();
+                    this.getAndSetMultipleParamsFromUrlString(e.target.getAttribute('href'));
+                    this.getFieldValuesThenFetchData();
+                });
+
+                list.append(anchor);
+                return list;
             });
 
-            list.append(anchor);
-            return list;
-        });
-
-        paginationInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                let paginationInputValue = paginationInput.value;
-                if (paginationInputValue > this.meta.last_page || paginationInputValue < 1) {
-                    alert(`Page ${paginationInputValue} does not exist`);
-                } else {
-                    this.updateUrlParam('page', paginationInputValue);
-                    this.fetchThenRenderData();
+            paginationInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    let paginationInputValue = paginationInput.value;
+                    if (paginationInputValue > this.meta.last_page || paginationInputValue < 1) {
+                        alert(`Page ${paginationInputValue} does not exist`);
+                    } else {
+                        this.updateUrlParam('page', paginationInputValue);
+                        this.fetchThenRenderData();
+                    }
                 }
+            });
+
+            let paginationInputList = document.createElement('li');
+            paginationInputList.append(paginationInput);
+            links.push(paginationInputList);
+        }
+
+        return links;
+    }
+
+    createBackwardCompatibleLinks() {
+        let links = [];
+        let metaLinks = this.meta.links;
+        if (!metaLinks) {
+            const LAST_PAGE = this.meta.last_page;
+            const CURRENT_PAGE = this.meta.current_page;
+            for (let i = 0; i < LAST_PAGE; i++) {
+                const PAGE = i + 1;
+                let thisUrl = `${this.url}?page=${PAGE}`;
+                if (this.url.includes('page')) {
+                    let url = new URL(thisUrl);
+                    url.searchParams.set('page', PAGE);
+                    thisUrl = url.toString();
+                }
+                links.push({
+                    "url": thisUrl,
+                    "label": PAGE,
+                    "active": PAGE === CURRENT_PAGE
+                });
             }
-        });
-
-        let paginationInputList = document.createElement('li');
-        paginationInputList.append(paginationInput);
-        links.push(paginationInputList);
-
+            links = [
+                {
+                    "url": this.links.prev,
+                    "label": "&laquo;",
+                    "active": false
+                },
+                ...links,
+                {
+                    "url": this.links.next,
+                    "label": "&raquo;",
+                    "active": false
+                }
+            ]
+        }
         return links;
     }
 
