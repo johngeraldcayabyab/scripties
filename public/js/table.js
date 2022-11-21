@@ -248,24 +248,14 @@ class Table {
                     thisUrl = url.toString();
                 }
                 links.push({
-                    "url": thisUrl,
-                    "label": PAGE,
-                    "active": PAGE === CURRENT_PAGE
+                    "url": thisUrl, "label": PAGE, "active": PAGE === CURRENT_PAGE
                 });
             }
-            links = [
-                {
-                    "url": this.links.prev,
-                    "label": "&laquo;",
-                    "active": false
-                },
-                ...links,
-                {
-                    "url": this.links.next,
-                    "label": "&raquo;",
-                    "active": false
-                }
-            ]
+            links = [{
+                "url": this.links.prev, "label": "&laquo;", "active": false
+            }, ...links, {
+                "url": this.links.next, "label": "&raquo;", "active": false
+            }]
         }
         return links;
     }
@@ -465,6 +455,25 @@ class Table {
 
     getFilterFields() {
         return document.querySelectorAll('.filter-fields');
+    }
+
+    renderDeleteButton(data, table, route) {
+        let deleteButton = document.createElement('button');
+        deleteButton.setAttribute('type', 'button');
+        deleteButton.classList.add(...['btn', 'btn-danger', 'btn-sm', 'btn-delete']);
+        deleteButton.innerHTML = 'Del';
+        deleteButton.id = data.id;
+        deleteButton.addEventListener('click', () => {
+            if (!confirm('Are you sure you want to delete this record?')) {
+                return true;
+            }
+            let url = route;
+            url = url.replace(':id', data.id);
+            destroy(url).then(() => {
+                table.fetchThenRenderData();
+            });
+        });
+        return deleteButton;
     }
 }
 
