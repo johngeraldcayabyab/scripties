@@ -8,6 +8,7 @@ class Table {
         this.filter = config.filter;
         this.columnAlignment = config.columnAlignment ? config.columnAlignment : 'text-end';
         this.row = config.row;
+        this.tBodyRows = [];
         this.getAndSetMultipleParamsFromUrlString(config.url);
         this.createTable();
         this.fetchThenRenderData();
@@ -49,6 +50,7 @@ class Table {
             let tBody = document.querySelector(`${this.table} tbody`);
             tBody.innerHTML = '';
             tBody.append(...rows);
+            this.tBodyRows = rows;
         }).then(() => {
             if (this.pagination) {
                 this.createPagination();
