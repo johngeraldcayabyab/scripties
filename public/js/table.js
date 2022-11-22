@@ -1,5 +1,5 @@
 class Table {
-    constructor(table, config) {
+    constructor(table, config = {}) {
         this.instantiated = false;
         this.table = table;
         this.url = config.url;
@@ -11,7 +11,9 @@ class Table {
         this.tBodyRows = [];
         this.getAndSetMultipleParamsFromUrlString(config.url);
         this.createTable();
-        this.fetchThenRenderData();
+        if (!config.hasOwnProperty('initialRenderFalse')) {
+            this.fetchThenRenderData();
+        }
     }
 
     getAndSetMultipleParamsFromUrlString(url) {
