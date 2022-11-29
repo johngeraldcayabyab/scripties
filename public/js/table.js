@@ -479,6 +479,20 @@ class Table {
         });
         return deleteButton;
     }
+
+    /**
+     * Currently does not reset filter
+     */
+    clearTable() {
+        let tBody = document.querySelector(`${this.table} tbody`);
+        if (tBody) {
+            tBody.innerHTML = '';
+        }
+        let nav = document.querySelector(`${this.pagination}`);
+        if (nav) {
+            nav.innerHTML = '';
+        }
+    }
 }
 
 function createSVG(classList) {
