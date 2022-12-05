@@ -5,6 +5,7 @@ class Table {
         this.url = config.url;
         this.columns = config.columns;
         this.pagination = config.pagination;
+        this.paginationCenter = config.paginationCenter;
         this.filter = config.filter;
         this.columnAlignment = config.columnAlignment ? config.columnAlignment : 'text-end';
         this.row = config.row;
@@ -170,7 +171,7 @@ class Table {
     createPagination() {
         let nav = document.querySelector(`${this.pagination}`);
         let unorderedList = document.createElement('ul');
-        unorderedList.classList.add(...['pagination', 'justify-content-end', 'pagination-sm']);
+        unorderedList.classList.add(...['pagination', this.paginationCenter ? 'justify-content-center' : 'justify-content-end', 'pagination-sm']);
         nav.innerHTML = '';
         unorderedList.append(...this.createLinks());
         nav.append(unorderedList);
