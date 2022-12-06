@@ -70,7 +70,6 @@ class Table {
         row.classList.add(...[this.columnAlignment, 'table-row']);
         this.columns.forEach((column) => {
             let td = document.createElement('td');
-
             /**
              * Dictates the rendered child
              */
@@ -78,9 +77,9 @@ class Table {
                 td.append(data[column.field]);
             } else {
                 let self = this;
-                td.append(column.render(data, self));
+                const rendered = column.render(data, self);
+                td.insertAdjacentHTML('beforeend', rendered);
             }
-
             row.append(td);
         });
         if (this.row) {
