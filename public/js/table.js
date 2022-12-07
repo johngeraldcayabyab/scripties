@@ -78,7 +78,11 @@ class Table {
             } else {
                 let self = this;
                 const rendered = column.render(data, self);
-                td.insertAdjacentHTML('beforeend', rendered);
+                if (typeof (rendered) === 'string') {
+                    td.insertAdjacentHTML('beforeend', rendered);
+                } else {
+                    td.append(rendered);
+                }
             }
             row.append(td);
         });
