@@ -1,5 +1,6 @@
 class Table {
     constructor(table, config = {}) {
+        this.originalUrl = config.url;
         this.instantiated = false;
         this.table = table;
         this.url = config.url;
@@ -335,7 +336,7 @@ class Table {
             }
         });
         this.toggleFilterFieldsRow();
-        this.resetFilters();
+        this.resetFiltersOnClick();
     }
 
     resetPaginationOnSearch() {
@@ -449,16 +450,21 @@ class Table {
         return fieldValues;
     }
 
-    resetFilters() {
+    resetFiltersOnClick() {
         let filterReset = document.querySelector('.filter-reset');
         filterReset.addEventListener('click', (e) => {
-            let filterFields = this.getFilterFields();
-            filterFields.forEach((filterField) => {
-                filterField.value = '';
-            });
-            this.resetPaginationOnSearch();
-            this.getFieldValuesThenFetchData();
+            this.resetFilters();
         });
+    }
+
+    resetFilters() {
+        this.setUrl(this.originalUrl);
+        let filterFields = this.getFilterFields();
+        filterFields.forEach((filterField) => {
+            filterField.value = '';
+        });
+        this.resetPaginationOnSearch();
+        this.getFieldValuesThenFetchData();
     }
 
     getFilterFields() {
