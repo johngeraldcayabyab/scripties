@@ -71,6 +71,13 @@ class Table {
         row.classList.add(...[this.columnAlignment, 'table-row']);
         this.columns.forEach((column) => {
             let td = document.createElement('td');
+            if (column.hasOwnProperty('title')) {
+                if (typeof column.title === 'function') {
+                    td.setAttribute('title', column.title(data, self));
+                } else {
+                    td.setAttribute('title', column.title);
+                }
+            }
             /**
              * Dictates the rendered child
              */
