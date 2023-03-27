@@ -11,6 +11,7 @@ class Table {
         this.columnAlignment = config.columnAlignment ? config.columnAlignment : 'text-end';
         this.row = config.row;
         this.tBodyRows = [];
+        this.customButtons = config.customButtons;
         this.getAndSetMultipleParamsFromUrlString(config.url);
         this.createTable();
         if (!config.hasOwnProperty('initialRenderFalse')) {
@@ -41,6 +42,10 @@ class Table {
         }
     }
 
+    getTbody() {
+        return document.querySelector(`${this.table} tbody`);
+    }
+
     fetchThenRenderData() {
         get(this.getUrl()).then((response) => {
             this.meta = response.meta;
@@ -48,10 +53,10 @@ class Table {
 
             let rows = [];
             response.data.forEach((data) => {
-                let row = this.createRow(data);
+                let row = this.generateRow(data);
                 rows.push(row);
             });
-            let tBody = document.querySelector(`${this.table} tbody`);
+            let tBody = this.getTbody();
             tBody.innerHTML = '';
             tBody.append(...rows);
             this.tBodyRows = rows;
@@ -66,7 +71,13 @@ class Table {
         });
     }
 
-    createRow(data) {
+    appendRow(data) {
+        let tBody = this.getTbody();
+        const row = this.generateRow(data);
+        tBody.append(row);
+    }
+
+    generateRow(data) {
         let row = document.createElement('tr');
         row.classList.add(...[this.columnAlignment, 'table-row']);
         this.columns.forEach((column) => {
@@ -291,10 +302,18 @@ class Table {
         if (!isFilter) {
             return null;
         }
-
+        const rowCons = document.createElement('div');
+        rowCons.classList.add(...['row', 'mb-3']);
+        let messageAndOtherThingsContainer = document.createElement('div');
+        messageAndOtherThingsContainer.setAttribute('id', 'other-things');
+        messageAndOtherThingsContainer.setAttribute('style', 'color: #f6b26b; padding-top: 5px;');
+        messageAndOtherThingsContainer.classList.add(...['col-10', 'text-end']);
+        // messageAndOtherThingsContainer.innerHTML = '현재 파트너사 서버 및 통신 오류로 SMS 프로세스를 진행 할수 없습니다. 리프레쉬 버튼 클릭 을 해주세요. (5번의 실패)';
         let searchAndResetButtonContainer = document.createElement('div');
-        searchAndResetButtonContainer.classList.add(...['col-2', 'offset-10', 'text-end', 'mb-3']);
+        searchAndResetButtonContainer.classList.add(...['col-2', 'text-end']);
         searchAndResetButtonContainer.append(this.createFilterAndResetButton());
+        rowCons.append(messageAndOtherThingsContainer);
+        rowCons.append(searchAndResetButtonContainer);
         let filters = this.columns.map((column) => {
             if (column.filter) {
                 if (column.filter.type === 'select') {
@@ -311,7 +330,8 @@ class Table {
         });
 
         let table = document.querySelector(this.table);
-        table.insertAdjacentElement('beforebegin', searchAndResetButtonContainer);
+        table.insertAdjacentElement('beforebegin', rowCons);
+
 
         let row = document.createElement('tr');
         row.classList.add(...['bg-light', 'filter-row', 'd-none']);
@@ -408,9 +428,29 @@ class Table {
         searchButton.setAttribute('type', 'button');
         let buttonSvg = createSVG(['bi', 'bi-search']);
         searchButton.append(buttonSvg);
+        const customButtons = this.createCustomButtons();
+        customButtons.forEach((customButton) => {
+            buttonGroup.append(customButton);
+        });
         buttonGroup.append(resetButton);
         buttonGroup.append(searchButton);
         return buttonGroup;
+    }
+
+    createCustomButtons() {
+        if (this.customButtons) {
+            return this.customButtons.map((button) => {
+                let customButton = document.createElement('input');
+                customButton.classList.add(...['btn', 'btn-sm', 'btn-outline-secondary', 'filter-reset']);
+                customButton.setAttribute('type', 'button');
+                customButton.setAttribute('value', button.label);
+                if (button.background) {
+                    customButton.setAttribute('style', `background: ${button.background}`);
+                }
+                return customButton;
+            });
+        }
+        return [];
     }
 
     toggleFilterFieldsRow() {
