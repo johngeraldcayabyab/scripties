@@ -302,18 +302,10 @@ class Table {
         if (!isFilter) {
             return null;
         }
-        const rowCons = document.createElement('div');
-        rowCons.classList.add(...['row', 'mb-3']);
-        let messageAndOtherThingsContainer = document.createElement('div');
-        messageAndOtherThingsContainer.setAttribute('id', 'other-things');
-        messageAndOtherThingsContainer.setAttribute('style', 'color: #f6b26b; padding-top: 5px;');
-        messageAndOtherThingsContainer.classList.add(...['col-10', 'text-end']);
-        // messageAndOtherThingsContainer.innerHTML = '현재 파트너사 서버 및 통신 오류로 SMS 프로세스를 진행 할수 없습니다. 리프레쉬 버튼 클릭 을 해주세요. (5번의 실패)';
+
         let searchAndResetButtonContainer = document.createElement('div');
-        searchAndResetButtonContainer.classList.add(...['col-2', 'text-end']);
+        searchAndResetButtonContainer.classList.add(...['col-2', 'offset-10', 'text-end', 'mb-3']);
         searchAndResetButtonContainer.append(this.createFilterAndResetButton());
-        rowCons.append(messageAndOtherThingsContainer);
-        rowCons.append(searchAndResetButtonContainer);
         let filters = this.columns.map((column) => {
             if (column.filter) {
                 if (column.filter.type === 'select') {
@@ -330,8 +322,7 @@ class Table {
         });
 
         let table = document.querySelector(this.table);
-        table.insertAdjacentElement('beforebegin', rowCons);
-
+        table.insertAdjacentElement('beforebegin', searchAndResetButtonContainer);
 
         let row = document.createElement('tr');
         row.classList.add(...['bg-light', 'filter-row', 'd-none']);
@@ -444,9 +435,6 @@ class Table {
                 customButton.classList.add(...['btn', 'btn-sm', 'btn-outline-secondary', 'filter-reset']);
                 customButton.setAttribute('type', 'button');
                 customButton.setAttribute('value', button.label);
-                if (button.background) {
-                    customButton.setAttribute('style', `background: ${button.background}`);
-                }
                 return customButton;
             });
         }
