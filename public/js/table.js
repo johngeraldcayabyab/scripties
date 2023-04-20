@@ -15,7 +15,7 @@ class Table {
         this.getAndSetMultipleParamsFromUrlString(config.url);
         this.createTable();
         if (!config.hasOwnProperty('initialRenderFalse')) {
-            this.fetchThenRenderData();
+            this.fetchThenRenderData(config.callBackAfterRender ? config.callBackAfterRender : null);
         }
     }
 
@@ -46,11 +46,10 @@ class Table {
         return document.querySelector(`${this.table} tbody`);
     }
 
-    fetchThenRenderData() {
+    fetchThenRenderData(callback = null) {
         get(this.getUrl()).then((response) => {
             this.meta = response.meta;
             this.links = response.links;
-
             let rows = [];
             response.data.forEach((data) => {
                 let row = this.generateRow(data);
@@ -60,7 +59,8 @@ class Table {
             tBody.innerHTML = '';
             tBody.append(...rows);
             this.tBodyRows = rows;
-        }).then(() => {
+            return response;
+        }).then((response) => {
             if (this.pagination) {
                 this.createPagination();
             }
@@ -68,6 +68,9 @@ class Table {
                 this.createFilter();
             }
             this.instantiated = true;
+            if (callback) {
+                callback(response);
+            }
         });
     }
 
