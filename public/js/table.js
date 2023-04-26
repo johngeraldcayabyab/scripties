@@ -307,6 +307,7 @@ class Table {
         }
 
         let searchAndResetButtonContainer = document.createElement('div');
+        searchAndResetButtonContainer.id = 'search-and-reset-button-container';
         searchAndResetButtonContainer.classList.add(...['col-2', 'offset-10', 'text-end', 'mb-3']);
         searchAndResetButtonContainer.append(this.createFilterAndResetButton());
         let filters = this.columns.map((column) => {
