@@ -265,8 +265,8 @@ class Table {
     }
 
     createBackwardCompatibleLinks() {
-        let links = this.meta.links;
-        if (!links) {
+        let links = [];
+        if (!this.meta.links) {
             const LAST_PAGE = this.meta.last_page;
             const CURRENT_PAGE = this.meta.current_page;
             for (let i = 0; i < LAST_PAGE; i++) {
