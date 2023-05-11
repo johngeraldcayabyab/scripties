@@ -109,7 +109,7 @@ class Table {
             row.append(td);
         });
         if (this.row) {
-            row = this.row(data, row);
+            row = this.row(data, row, this);
         }
         return row;
     }
