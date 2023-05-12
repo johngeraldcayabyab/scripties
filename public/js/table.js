@@ -74,6 +74,21 @@ class Table {
         });
     }
 
+    fetchThenRenderHijack(callback) {
+        get(this.getUrl()).then((response) => {
+            callback(response);
+            return response;
+        }).then((response) => {
+            if (this.pagination) {
+                this.createPagination();
+            }
+            if (!this.instantiated) {
+                this.createFilter();
+            }
+            this.instantiated = true;
+        });
+    }
+
     appendRow(data) {
         let tBody = this.getTbody();
         const row = this.generateRow(data);
