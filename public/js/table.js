@@ -428,7 +428,8 @@ class Table {
     }
 
     createMinMaxFilter(column) {
-        const fragment = document.createDocumentFragment();
+        const group = document.createElement('div');
+        group.classList.add('input-group');
         let minInput = document.createElement('input');
         minInput.classList.add(...['form-control', 'form-control-sm', 'filter-fields']);
         minInput.setAttribute('name', `${column.field}[min]`);
@@ -443,13 +444,13 @@ class Table {
         maxInput.setAttribute('name', `${column.field}[min]`);
         maxInput.setAttribute('type', 'number');
         maxInput.setAttribute('autocomplete', 'off');
-        maxInput.setAttribute('placeholder', 'min');
+        maxInput.setAttribute('placeholder', 'max');
         if (column.filter.value && column.filter.value.max) {
             maxInput.setAttribute('value', column.filter.value.max);
         }
-        fragment.append(minInput);
-        fragment.append(maxInput);
-        return fragment;
+        group.append(minInput);
+        group.append(maxInput);
+        return group;
     }
 
     createFilterAndResetButton() {
