@@ -333,6 +333,8 @@ class Table {
                     column = this.createTextFilter(column);
                 } else if (column.filter.type === 'number_filter') {
                     column = this.createNumberFilter(column);
+                } else if (column.filter.type === 'min_max_filter') {
+                    column = this.createMinMaxFilter(column);
                 }
             } else {
                 column = '';
@@ -423,6 +425,31 @@ class Table {
             input.setAttribute('value', column.filter.value);
         }
         return input;
+    }
+
+    createMinMaxFilter(column) {
+        const fragment = document.createDocumentFragment();
+        let minInput = document.createElement('input');
+        minInput.classList.add(...['form-control', 'form-control-sm', 'filter-fields']);
+        minInput.setAttribute('name', `${column.field}[min]`);
+        minInput.setAttribute('type', 'number');
+        minInput.setAttribute('autocomplete', 'off');
+        minInput.setAttribute('placeholder', 'min');
+        if (column.filter.value && column.filter.value.min) {
+            minInput.setAttribute('value', column.filter.value.min);
+        }
+        let maxInput = document.createElement('input');
+        maxInput.classList.add(...['form-control', 'form-control-sm', 'filter-fields']);
+        maxInput.setAttribute('name', `${column.field}[min]`);
+        maxInput.setAttribute('type', 'number');
+        maxInput.setAttribute('autocomplete', 'off');
+        maxInput.setAttribute('placeholder', 'min');
+        if (column.filter.value && column.filter.value.max) {
+            maxInput.setAttribute('value', column.filter.value.max);
+        }
+        fragment.append(minInput);
+        fragment.append(maxInput);
+        return fragment;
     }
 
     createFilterAndResetButton() {
