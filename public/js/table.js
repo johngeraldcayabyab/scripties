@@ -432,7 +432,7 @@ class Table {
         group.classList.add('input-group');
         let minInput = document.createElement('input');
         minInput.classList.add(...['form-control', 'form-control-sm', 'filter-fields']);
-        minInput.setAttribute('name', `${column.field}_min`);
+        minInput.setAttribute('name', `${column.field}[min]`);
         minInput.setAttribute('type', 'number');
         minInput.setAttribute('autocomplete', 'off');
         minInput.setAttribute('placeholder', 'min');
@@ -441,7 +441,7 @@ class Table {
         }
         let maxInput = document.createElement('input');
         maxInput.classList.add(...['form-control', 'form-control-sm', 'filter-fields']);
-        maxInput.setAttribute('name', `${column.field}_max`);
+        maxInput.setAttribute('name', `${column.field}[max]`);
         maxInput.setAttribute('type', 'number');
         maxInput.setAttribute('autocomplete', 'off');
         maxInput.setAttribute('placeholder', 'max');
