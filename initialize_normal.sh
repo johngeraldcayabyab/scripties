@@ -14,10 +14,7 @@ sudo apt-get update
 sudo apt-get install -y \
     php8.3 \
     php8.3-cli \
-    php8.3-common \
     php8.3-curl \
-    php8.3-json \
-    php8.3-opcache \
     php8.3-readline \
     php8.3-mysql \
     php8.3-pgsql \
