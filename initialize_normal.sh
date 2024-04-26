@@ -36,7 +36,8 @@ sudo apt-get install -y \
     php8.3-memcached \
     php8.3-pcov \
     php8.3-xdebug \
-    php8.3-redis
+    php8.3-redis \
+    php8.3-fpm
 
 # Clean up
 sudo apt-get clean
