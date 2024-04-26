@@ -28,6 +28,17 @@ sudo apt-get install -y \
     php8.3-zip \
     php8.3-bcmath \
     php8.3-imagick \
+    php8.3-dev \
+    php8.3-imap \
+    php8.3-soap \
+    php8.3-intl \
+    php8.3-ldap \
+    php8.3-msgpack \
+    php8.3-igbinary \
+    php8.3-swoole \
+    php8.3-memcached \
+    php8.3-pcov \
+    php8.3-xdebug \
     php8.3-redis
 
 # Clean up
